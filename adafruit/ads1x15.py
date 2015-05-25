@@ -1,0 +1,1 @@
+../Adafruit-Raspberry-Pi-Python-Code/Adafruit_ADS1x15/Adafruit_ADS1x15.py
