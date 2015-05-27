@@ -9,9 +9,7 @@ def delay(microseconds):
     time.sleep(microseconds/1000000)
 
 class Component:
-    def __init__(self,outpins=(),inpins=()):
-        self.__out_pins = outpins
-        self.__in_pins = inpins
+    def __init__(self):
         self.__initialized = False
 
     def _checkInit(self,quiet=False):
@@ -21,12 +19,34 @@ class Component:
             raise RuntimeError("This {} has not been initialized yet!".format(
                     self.__class__.__name__))
 
-    def init(self,wait_set_init=False):
+    def _set_init(self):
+        self.__initialized = True
+
+    def init(self):
         if self.__initialized:
             try:
                 self.cleanup()
             finally:
                 pass
+
+    def cleanup(self):
+        self.__initialized = False
+
+    def __enter__(self):
+        self.init()
+        return self
+
+    def __exit__(self, type, value, tb):
+        self.cleanup()
+
+class GPIOComponent(Component):
+    def __init__(self,outpins=(),inpins=()):
+        super().__init__()
+        self.__out_pins = outpins
+        self.__in_pins = inpins
+
+    def init(self,wait_set_init=False):
+        super().init()
             
         gpio.setmode(gpio.BOARD)
 
@@ -36,21 +56,15 @@ class Component:
             gpio.setup(ch, gpio.IN, initial=gpio.LOW)
 
         if not wait_set_init:
-            self.__initialized = True
-
-    def set_init(self):
-        self.__initialized = True
+            self._set_init()
 
     def cleanup(self):
-        if not self.__initialized:
+        if not self._checkInit(True):
             return False
-        self.__initialized = False
+        super().cleanup()
         for ch in self.__out_pins + self.__in_pins:
             gpio.cleanup(ch)
-        
-    def __enter__(self):
-        self.init()
-        return self
+        return True
 
-    def __exit__(self, type, value, tb):
-        self.cleanup()
+class I2CComponent(Component):
+    pass

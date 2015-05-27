@@ -12,16 +12,16 @@ from time import sleep
 from collections import defaultdict
 
 try:
-    from .component import Component
-except ValueError:
-    from component import Component
+    from .component import GPIOComponent
+except SystemError:
+    from component import GPIOComponent
 
 A = 8  # TXD
 B = 10 # RXD
 C = 24 # CE0
 D = 26 # CE1
 
-class RFReceiver(Component):
+class RFReceiver(GPIOComponent):
     def __init__(self,a=A,b=B,c=C,d=D):
         self.pins = (a, b, c, d)
         self.handlers = defaultdict(dict)

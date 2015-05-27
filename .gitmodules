@@ -1,6 +1,6 @@
 [submodule "Adafruit-Raspberry-Pi-Python-Code"]
 	path = Adafruit-Raspberry-Pi-Python-Code
-	url = git@github.com:baryon5/Adafruit-Raspberry-Pi-Python-Code.git
+	url = https://github.com/baryon5/Adafruit-Raspberry-Pi-Python-Code.git
 [submodule "Adafruit_Trellis_Python"]
 	path = Adafruit_Trellis_Python
-	url = git@github.com:baryon5/Adafruit_Trellis_Python
+	url = https://github.com/baryon5/Adafruit_Trellis_Python.git

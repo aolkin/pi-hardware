@@ -15,9 +15,9 @@ import RPi.GPIO as gpio
 import time, threading, sys
 
 try:
-    from .component import Component, delay
-except ValueError:
-    from component import Component, delay
+    from .component import GPIOComponent, delay
+except SystemError:
+    from component import GPIOComponent, delay
 
 RS = 18 # 24
 EN = 22 # 25
@@ -37,7 +37,7 @@ SHIFT_MASK = 0b00010000
 RIGHT = 0b0100
 LEFT  = 0b0000
 
-class Display(Component):
+class Display(GPIOComponent):
     def __init__(self,rs=RS,en=EN,d7=D7,d6=D6,d5=D5,d4=D4,bl=BACKLIGHT):
         self.RS = rs
         self.EN = en
@@ -159,7 +159,7 @@ class Display(Component):
             self.__write4(0b0011) # Again, in case in 4 bit mode
             self.__write4(0b0010) # Set to 4 bit mode in 8 bit mode
 
-            self.set_init()
+            self._set_init()
 
             delay(500)
             self.command(0b00101000) # Set to use max number of lines and font 0
