@@ -9,23 +9,20 @@
 
 import RPi.GPIO as gpio
 from time import sleep
-from collections import defaultdict
 
 try:
-    from .component import GPIOComponent
+    from .component import GPIOComponent, EventedInput
 except SystemError:
-    from component import GPIOComponent
+    from component import GPIOComponent, EventedInput
 
 A = 8  # TXD
 B = 10 # RXD
 C = 24 # CE0
 D = 26 # CE1
 
-class RFReceiver(GPIOComponent):
+class RFReceiver(GPIOComponent, EventedInput):
     def __init__(self,a=A,b=B,c=C,d=D):
         self.pins = (a, b, c, d)
-        self.handlers = defaultdict(dict)
-        self.__next_id = -1
         super().__init__(inpins=self.pins)
 
     def init(self):
@@ -38,25 +35,6 @@ class RFReceiver(GPIOComponent):
         for i in self.pins:
             gpio.remove_event_detect(i)
         super().cleanup()
-
-    def _handle_pin(self,pin):
-        for i in self.handlers["generic"].values():
-            i(pin)
-        for i in self.handlers[pin].values():
-            i(pin)
-
-    def __get_handlers(self,pin=None,generic=False):
-        if (pin is None) and (not generic):
-            raise TypeError("Must supply pin for non generic handler!")
-        return self.handlers["generic"] if generic else self.handlers[pin]
-
-    def add_handler(self,callback,pin=None,generic=False):
-        self.__next_id += 1
-        self.__get_handlers(pin,generic)[self.__next_id] = callback
-        return self.__next_id
-
-    def remove_handler(self,hid,pin=None,generic=False):
-        del self.__get_handlers(pin,generic)[hid]
 
 if __name__ == "__main__":
     def echo(pin):
