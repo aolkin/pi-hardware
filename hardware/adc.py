@@ -9,7 +9,7 @@ try:
 except SystemError:
     from component import *
 
-from theading import Thread
+from threading import Thread
 
 IC = 0 # ADS1015 (12-bit ADC)
 GAIN = 0x1000 # (+/- 4.096V for Rasberry Pi 3V3 supply)
@@ -66,7 +66,7 @@ class ADC4(I2CComponent, EventedInput):
 def ScaledADC4(ADC4):
     def __init__(self, low=0, high=GAIN, precision=0, scale=100,
                  *args, **kwargs):
-        super().__init__(*args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._low = low
         self._high = high - low
         self._precision = precision

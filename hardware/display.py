@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 #
 # PINS:
-# 4 RS: 24
-# 6 EN: 25
-# 7 DB: 4
-# 6 DB: 17
-# 5 DB: 21/27
-# 4 DB: 22
+# 4 RS
+# 6 EN
+# 7 DB
+# 6 DB
+# 5 DB
+# 4 DB
 #
 # Backlight: 18
 #
@@ -19,8 +19,8 @@ try:
 except SystemError:
     from component import GPIOComponent, delay
 
-RS = 18 # 24
-EN = 22 # 25
+RS = 29 # 5
+EN = 31 # 6
 D7 = 7  # 4
 D6 = 11 # 17
 D5 = 13 # 27
@@ -365,4 +365,4 @@ if __name__ == "__main__":
     with Display() as display:
         display.lit = True
         display.printString("Hello World")
-        time.sleep(1)
+        input("Press enter to quit")
