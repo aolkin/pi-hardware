@@ -97,7 +97,9 @@ class EventedInput:
         del self._get_handlers(pin,generic)[hid]
 
     def _handle_pin(self,pin):
-        for i in self._get_handlers(generic=True).values():
-            i(pin)
-        for i in self._get_handlers(pin).values():
-            i(pin)
+        for i in (list(self._get_handlers(generic=True).values())
+                  + list(self._get_handlers(pin).values())):
+            try:
+                i(pin)
+            except Exception as e:
+                print(repr(e))
