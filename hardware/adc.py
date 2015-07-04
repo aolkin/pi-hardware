@@ -14,7 +14,7 @@ WAITMS = 100
 
 MILLIVOLTS = 1000
 
-class ADC4(I2CComponent, EventedInput, LoopedInput):
+class ADC4(EventedInput, LoopedInput, I2CComponent):
     _mswait = 50
 
     def __init__(self, *args, **kwargs):
