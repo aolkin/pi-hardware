@@ -103,3 +103,34 @@ class EventedInput:
                 i(pin)
             except Exception as e:
                 print(repr(e))
+
+class LoopedInput:
+    def __init__(self, *args, **kwargs):        
+        super().__init__(*args, **kwargs)
+        self.thread = Thread(target=self.runloop)
+        self.thread.daemon = True
+        self.__started = False
+        self.thread.start()
+
+    def init(self, autostart=False):
+        super().init()
+        self._set_init()
+        if autostart:
+            self.start()
+        
+    def cleanup(self):
+        if self.__started:
+            self.stop()
+        super().cleanup()
+
+    def start(self):
+        self.__started = True
+
+    def stop(self):
+        self.__started = False
+
+    def runloop(self):
+        while True:
+            if self.__started:
+                self.tick()
+            waitms(self._mswait)
