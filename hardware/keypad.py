@@ -7,8 +7,6 @@ try:
 except SystemError:
     from component import *
 
-from threading import Thread
-
 class LEDKeypad(I2CComponent, EventedInput, LoopedInput):
     _waitms = 100
 

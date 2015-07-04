@@ -6,6 +6,7 @@ import RPi.GPIO as gpio
 import time
 
 from collections import defaultdict
+from threading import Thread
 
 def delay(microseconds):
     time.sleep(microseconds/1000000)

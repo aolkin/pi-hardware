@@ -7,8 +7,6 @@ try:
 except SystemError:
     from component import *
 
-from threading import Thread
-
 IC = 0 # ADS1015 (12-bit ADC)
 GAIN = 0x1000 # (+/- 4.096V for Rasberry Pi 3V3 supply)
 SINGLE_SPS = SPS = 2400
