@@ -50,7 +50,7 @@ class GPIOComponent(Component):
 
     def init(self,wait_set_init=False):
         super().init()
-        if self.__initialized:
+        if self._checkInit(True):
             try:
                 self.cleanup()
             finally:

@@ -26,7 +26,7 @@ D6 = 11 # 17
 D5 = 13 # 27
 D4 = 15 # 22
 
-BACKLIGHT = 12 # 18
+BACKLIGHT = 33 # 13
 
 ROWS = 4
 COLS = 20
@@ -151,10 +151,11 @@ class Display(GPIOComponent):
             delay(50)
             self.command(0b10000000)
 
-    def init(self,bl=False):
+    def init(self,bl=True):
         with self.lock:
             super().init(True)
             
+            gpio.output(self.RS,0) # Place in command mode
             self.__write4(0b0011) # Set to 8 bit mode
             self.__write4(0b0011) # Again, in case in 4 bit mode
             self.__write4(0b0010) # Set to 4 bit mode in 8 bit mode
