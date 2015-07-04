@@ -8,7 +8,7 @@ except SystemError:
     from component import *
 
 class LEDKeypad(I2CComponent, EventedInput, LoopedInput):
-    _waitms = 100
+    _mswait = 100
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
