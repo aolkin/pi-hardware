@@ -30,11 +30,7 @@ class Component:
         self.__initialized = True
 
     def init(self):
-        if self.__initialized:
-            try:
-                self.cleanup()
-            finally:
-                pass
+        pass
 
     def cleanup(self):
         self.__initialized = False
@@ -54,6 +50,11 @@ class GPIOComponent(Component):
 
     def init(self,wait_set_init=False):
         super().init()
+        if self._checkInit(True):
+            try:
+                self.cleanup()
+            finally:
+                pass
             
         gpio.setmode(gpio.BOARD)
 
@@ -125,6 +126,7 @@ class LoopedInput:
         super().cleanup()
 
     def start(self):
+        self._checkInit()
         self.__started = True
 
     def stop(self):
