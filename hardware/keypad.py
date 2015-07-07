@@ -28,7 +28,16 @@ class LEDKeypad(I2CComponent, EventedInput, LoopedInput):
                 if self.trellis.justPressed(i):
                     self._handle_pin(i)
 
+    def __led(self, val, index):
+        getattr(self.trellis,"setLED" if val else "clrLED")(index)
+
+    def insert(self, row, col, val):
+        self.__led(val, row*4 + col)
+
+    def flush(self):
+        self.trellis.writeDisplay()
+        
     def set_leds(self, leds={}):
         for i, val in leds.items():
-            self.trellis.setLED(i) if val else self.trellis.clrLED(i)
-        self.trellis.writeDisplay()
+            self.__led(val, i)
+        self.flush()
