@@ -1,6 +1,10 @@
 
 from warnings import warn
 
+import os, sys
+if os.environ.get("USE_DUMMY_MODULES"):
+    sys.path.append(os.path.join(os.path.dirname(__file__),"../dummies"))
+
 try:
     from .display import *
     from .rf import *
