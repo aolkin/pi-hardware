@@ -22,8 +22,8 @@ class ADC4(EventedInput, LoopedInput, I2CComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.values = list([None for i in range(4)])
-        self.__last_values = list([deque([0 for i in range(4)],
-                                         4) for i in range(4)])
+        self.__last_values = list([deque([0 for i in range(2)])
+                                   for i in range(4)])
 
     def init(self, autostart=False):
         super().init()

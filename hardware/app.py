@@ -89,7 +89,7 @@ class HardwareApp:
             self.__inputs[hw][pin][self.__ipriorities[hw][pin][0]](pin)
         
     def update(self):
-        self.loop.call_later(0.08, self.update)
+        self.loop.call_later(0.05, self.update)
         for i in self.__inputs:
             i.tick()
         for o in self.__outputs:
