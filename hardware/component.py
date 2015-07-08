@@ -8,6 +8,8 @@ import time
 from collections import defaultdict
 from threading import Thread
 
+from traceback import print_exc, format_exc
+
 def delay(microseconds):
     time.sleep(microseconds/1000000)
 
@@ -103,7 +105,7 @@ class EventedInput:
             try:
                 i(pin)
             except Exception as e:
-                print(repr(e))
+                print_exc()
 
 class LoopedInput:
     def __init__(self, *args, **kwargs):        

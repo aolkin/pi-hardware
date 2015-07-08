@@ -60,7 +60,7 @@ class HardwareApp:
             pins = (pins, )
         if not self.__inputs[hw]:
             self.__input_handlers[hw] = hw.add_handler(
-                lambda pin, hw=hw: self._do_cb(hw,pin))
+                lambda pin, hw=hw: self._do_cb(hw,pin), generic=True)
         for i in pins:
             self.__inputs[hw][i][priority] = cb
             try:
@@ -76,16 +76,17 @@ class HardwareApp:
             pid = _get_id(row, startcol + i)
             self.__outputs[hw][pid][priority] = s
             try:
-                self.__ipriorities[hw][pid].remove(priority)
+                self.__opriorities[hw][pid].remove(priority)
             except ValueError:
                 pass
-            heappush(self.__ipriorities[hw][pid], priority)
+            heappush(self.__opriorities[hw][pid], priority)
         
     def quit(self):
         self.loop.stop()
 
     def _do_cb(self, hw, pin):
-        self.__inputs[hw][pin][self.__ipriorities[hw][pin][0]](pin)
+        if self.__ipriorities[hw][pin]:
+            self.__inputs[hw][pin][self.__ipriorities[hw][pin][0]](pin)
         
     def update(self):
         self.loop.call_later(0.08, self.update)
@@ -94,7 +95,7 @@ class HardwareApp:
         for o in self.__outputs:
             for l in self.__outputs[o]:
                 val = self.__outputs[o][l][self.__opriorities[o][l][0]]
-                if self.__last_outputs[o][l] != val:
+                if self.__last_outputs[o].get(l, None) != val:
                     self.__last_outputs[o][l] = val
                     o.insert(_get_row(l), _get_col(l), val)
             if hasattr(o, "flush"):
@@ -104,7 +105,10 @@ class HardwareApp:
         for i in self.__hw:
             i.init()
         self.__hw_initialized = True
-        self.loop.run_forever()
+        try:
+            self.loop.run_forever()
+        except KeyboardInterrupt:
+            pass
         self.__hw_initialized = False
         for i in self.__hw:
             i.cleanup()

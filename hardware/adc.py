@@ -2,6 +2,8 @@
 
 from adafruit.ads1x15 import ADS1x15
 
+from collections import deque
+
 try:
     from .component import *
 except SystemError:
@@ -18,7 +20,10 @@ class ADC4(EventedInput, LoopedInput, I2CComponent):
     _mswait = 50
 
     def __init__(self, *args, **kwargs):
-        self.values = [None, None, None, None]
+        super().__init__(*args, **kwargs)
+        self.values = list([None for i in range(4)])
+        self.__last_values = list([deque([0 for i in range(4)],
+                                         4) for i in range(4)])
 
     def init(self, autostart=False):
         super().init()
@@ -42,8 +47,17 @@ class ADC4(EventedInput, LoopedInput, I2CComponent):
     def tick(self):
         for i in range(4):
             v = self.read(i)
-            if self.values[i] != v:
-                self.values[i] = v
+            try:
+                self.__last_values[i].popleft()
+            except IndexError:
+                pass
+            self.__last_values[i].append(v)
+            val = (sum(self.__last_values[i]) /
+                   len(self.__last_values[i]))
+            if type(v) == int: val = int(val)
+            #print(v, val, self.__last_values[i])
+            if self.values[i] != val:
+                self.values[i] = val
                 self._handle_pin(i)
 
 class ScaledADC4(ADC4):
@@ -58,7 +72,10 @@ class ScaledADC4(ADC4):
 
     def process_reading(self, reading):
         r = (reading - self._low) / (self._high - self._low)
-        return round(r * self._scale, self._precision)
+        if self._precision:
+            return round(r * self._scale, self._precision)
+        else:
+            return int(r * self._scale)
 
 class ADCSet(EventedInput):
     def __init__(self, startaddr, n=2, scaled=False, *args, **kwargs):
@@ -85,9 +102,16 @@ class ADCSet(EventedInput):
     def stop(self):
         for i in self.adcs:
             i.stop()
+
+    def tick(self):
+        for i in self.adcs:
+            i.tick()
     
     def get(self, i):
-        self.adcs[i // 4].get(i % 4)
+        return self.adcs[i // 4].get(i % 4)
+    
+    def read(self, i):
+        return self.adcs[i // 4].read(i % 4)
 
     def cb(self, i, a):
-        self.handle_pin(a*4 + i)
+        self._handle_pin(a*4 + i)

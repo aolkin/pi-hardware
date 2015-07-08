@@ -154,7 +154,7 @@ class Display(GPIOComponent):
 
     def init(self,bl=True):
         with self.lock:
-            super().init(True)
+            super().init()
             
             gpio.output(self.RS,0) # Place in command mode
             self.__write4(0b0011) # Set to 8 bit mode
