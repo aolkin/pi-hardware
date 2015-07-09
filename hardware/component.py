@@ -48,7 +48,7 @@ class GPIOComponent(Component):
         self.__out_pins = outpins
         self.__in_pins = inpins
 
-    def init(self,wait_set_init=False):
+    def init(self):
         super().init()
         if self._checkInit(True):
             try:
@@ -63,8 +63,7 @@ class GPIOComponent(Component):
         for ch in self.__in_pins:
             gpio.setup(ch, gpio.IN, initial=gpio.LOW)
 
-        if not wait_set_init:
-            self._set_init()
+        self._set_init()
 
     def cleanup(self):
         if not self._checkInit(True):
