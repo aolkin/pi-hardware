@@ -7,6 +7,14 @@ try:
 except SystemError:
     from component import *
 
+def str_to_bools(s):
+    """Converts a string to an array of booleans. All characters
+    excepts spaces becomes True."""
+    out = []
+    for i in s:
+        out.append(False if i == " " else True)
+    return out
+    
 class LEDKeypad(EventedInput, LoopedInput, I2CComponent):
     _mswait = 100
 
@@ -26,7 +34,7 @@ class LEDKeypad(EventedInput, LoopedInput, I2CComponent):
 
     def tick(self):
         self._checkInit()
-        if self.trellis.readSwitches(self):
+        if self.trellis.readSwitches():
             for i in range(16):
                 if self.trellis.justPressed(i):
                     self._handle_pin(i)
@@ -35,7 +43,16 @@ class LEDKeypad(EventedInput, LoopedInput, I2CComponent):
         getattr(self.trellis,"setLED" if val else "clrLED")(index)
 
     def insert(self, row, col, val):
-        self.__led(val, row*4 + col)
+        if not hasattr(val, "__iter__"):
+            val = [val]
+        for i in val:
+            self.__led(i, row*4 + col)
+            col += 1
+            if col > 3:
+                row += 1
+                col = 0
+            if row > 3:
+                return False
 
     def flush(self):
         self.trellis.writeDisplay()

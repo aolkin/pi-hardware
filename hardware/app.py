@@ -72,6 +72,8 @@ class HardwareApp:
     def output(self, priority, hw, row, startcol, val):
         if not (hw in self.__hw):
             self.add_hw(hw)
+        if not hasattr(val,"__iter__"):
+            val = (val,)
         for i, s in enumerate(val):
             pid = _get_id(row, startcol + i)
             self.__outputs[hw][pid][priority] = s
