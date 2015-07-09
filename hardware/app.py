@@ -91,16 +91,16 @@ class HardwareApp:
         pins = ensure_iter(pins)
         for i in pins:
             try:
-                self.__ipriorities[hw][pin].remove(priority)
-                del self.__inputs[hw][pin][priority]
+                self.__ipriorities[hw][i].remove(priority)
+                del self.__inputs[hw][i][priority]
             except (ValueError, KeyError):
                 pass
 
     def outtake(self, priority, hw, row, colrange):
-        for i in colrange:
+        for i in ensure_iter(colrange):
             try:
                 pid = _get_id(row, i)
-                self.__opriorities[hw][pin].remove(priority)
+                self.__opriorities[hw][pid].remove(priority)
                 del self.__outputs[hw][pid][priority]
             except (ValueError, KeyError):
                 pass
@@ -118,10 +118,12 @@ class HardwareApp:
             i.tick()
         for o in self.__outputs:
             for l in self.__outputs[o]:
-                val = self.__outputs[o][l][self.__opriorities[o][l][0]]
-                if self.__last_outputs[o].get(l, None) != val:
-                    self.__last_outputs[o][l] = val
-                    o.insert(_get_row(l), _get_col(l), val)
+                if self.__opriorities[o][l]:
+                    p = self.__opriorities[o][l][0]
+                    val = self.__outputs[o][l][p]
+                    if self.__last_outputs[o].get(l, None) != val:
+                        self.__last_outputs[o][l] = val
+                        o.insert(_get_row(l), _get_col(l), val)
             if hasattr(o, "flush"):
                 o.flush()
 
@@ -172,4 +174,9 @@ class Context:
         self.app.release(self.priority, hw, pins)
 
     def outtake(self, hw, row, colrange):
-        self.app.release(self.priority, hw, row, colrange)
+        self.app.outtake(self.priority, hw, row, colrange)
+
+    def outreset(self, hw, row, colrange, val):
+        colrange = ensure_iter(colrange)
+        self.output(hw, row, colrange[0], (val,)*len(colrange))
+        self.app.loop.call_soon(lambda:self.app.outtake(self.priority, hw, row, colrange))
