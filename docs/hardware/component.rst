@@ -16,15 +16,8 @@ which provide the basic init/cleanup cycle, as well as ``with`` support.
    context management support, subclasses must override init and cleanup if
    they need to do anything during those steps.
 
-.. autoclass:: GPIOComponent
-
-   A :class:`GPIOComponent` automatically manages the initialization cycle of
-   the specified GPIO pins.
-
-.. autoclass:: I2CComponent
-
-   I2C hardware is usually interfaced with using an Adafruit library, so this
-   base class does very little.
+:class:`GPIOComponent` and :class:`I2CComponent` component type subclasses
+are provided.
 
 Generic Functionality
 =========================

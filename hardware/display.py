@@ -150,6 +150,7 @@ class Display(GPIOComponent):
                 self.write(i)
             delay(50)
             self.command(0b10000000)
+        return index
 
     def init(self,bl=True):
         with self.lock:
@@ -176,10 +177,6 @@ class Display(GPIOComponent):
             except RuntimeError as err:
                 pass
             super().cleanup()
-        
-    def __enter__(self):
-        self.init()
-        return self
 
 ROW_ADDENDS = {0: 0, 1: 64, 2: COLS, 3: 64+COLS}
 
