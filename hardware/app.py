@@ -18,6 +18,12 @@ def _get_col(id):
 list_dict = lambda: defaultdict(list)
 dict_dict = lambda: defaultdict(dict)
 
+def ensure_iter(val):
+    if hasattr(val,"__iter__"):
+        return val
+    else:
+        return (val,)
+
 class HardwareApp:
     """Handles priority-based contextual I/O for multiple devices.
 
@@ -56,8 +62,7 @@ class HardwareApp:
     def capture(self, priority, hw, pins, cb):
         if not (hw in self.__hw):
             self.add_hw(hw)
-        if not hasattr(pins, "__iter__"):
-            pins = (pins, )
+        pins = ensure_iter(pins)
         if not self.__inputs[hw]:
             self.__input_handlers[hw] = hw.add_handler(
                 lambda pin, hw=hw: self._do_cb(hw,pin), generic=True)
@@ -72,8 +77,7 @@ class HardwareApp:
     def output(self, priority, hw, row, startcol, val):
         if not (hw in self.__hw):
             self.add_hw(hw)
-        if not hasattr(val,"__iter__"):
-            val = (val,)
+        val = ensure_iter(val)
         for i, s in enumerate(val):
             pid = _get_id(row, startcol + i)
             self.__outputs[hw][pid][priority] = s
@@ -82,7 +86,25 @@ class HardwareApp:
             except ValueError:
                 pass
             heappush(self.__opriorities[hw][pid], priority)
-        
+
+    def release(self, priority, hw, pins):
+        pins = ensure_iter(pins)
+        for i in pins:
+            try:
+                self.__ipriorities[hw][pin].remove(priority)
+                del self.__inputs[hw][pin][priority]
+            except (ValueError, KeyError):
+                pass
+
+    def outtake(self, priority, hw, row, colrange):
+        for i in colrange:
+            try:
+                pid = _get_id(row, i)
+                self.__opriorities[hw][pin].remove(priority)
+                del self.__outputs[hw][pid][priority]
+            except (ValueError, KeyError):
+                pass
+            
     def quit(self):
         self.loop.stop()
 
@@ -121,17 +143,33 @@ class Context:
     
     def __init__(self, app):
         self.app = app
+        self.__inputs = defaultdict(set)
+        self.__outputs = defaultdict(lambda: defaultdict(set))
 
     def enter(self):
         """Capture inputs"""
         pass
 
     def leave(self):
-        """Release all aquired inputs"""
-        pass
+        """Release all aquired inputs and outputs"""
+        for i, j in self.__inputs.items():
+            self.release(i, j)
+        for i, j in self.__outputs.items():
+            for r, c in j.items():
+                self.outtake(i, r, c)
 
-    def capture(self, *args, **kwargs):
-        self.app.capture(self.priority, *args, **kwargs)
+    def capture(self, hw, pins, cb):
+        for i in ensure_iter(pins):
+            self.__inputs[hw].add(i)
+        self.app.capture(self.priority, hw, pins, cb)
         
-    def output(self, *args, **kwargs):
-        self.app.output(self.priority, *args, **kwargs)
+    def output(self, hw, row, startcol, val):
+        self.__outputs[hw][row].add(range(startcol,
+                                          startcol + len(ensure_iter(val)) ))
+        self.app.output(self.priority, hw, row, startcol, val)
+
+    def release(self, hw, pins):
+        self.app.release(self.priority, hw, pins)
+
+    def outtake(self, hw, row, colrange):
+        self.app.release(self.priority, hw, row, colrange)
